@@ -1,0 +1,53 @@
+import socket
+import tkinter as tk
+from tkinter import ttk
+import time
+# her er 10.100.0.183
+# Define server IP and port
+server_ip = '0.0.0.0'  # Listen on all available interfaces
+server_port = 12345  # Choose a suitable port number
+
+# Create a UDP socket
+udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udp_socket.bind((server_ip, server_port))
+
+print(f"UDP server listening on {server_ip}:{server_port}")
+
+
+def on_slider_change(value):
+    global slider_value
+    slider_value = value
+    label.config(text=f"Slider value: {slider_value}")
+
+# Opret hovedvinduet
+root = tk.Tk()
+root.title("Slider GUI")
+
+# Opret en label til at vise sliderens værdi
+label = ttk.Label(root, text="Slider value: 0")
+label.pack(padx=20, pady=10)
+
+# Create a slider
+slider = ttk.Scale(root, from_=-1, to=1, orient="vertical", command=on_slider_change,length=1800)
+slider.pack(padx=20, pady=10)
+
+# Initialize the slider value
+slider_value = slider.get()
+
+
+
+while True:
+    timestamp1 = time.time()
+    root.update()
+    data, client_address = udp_socket.recvfrom(1024)
+    a = slider_value
+    print(f"I/O,{data.decode()},{a}")
+    # Respond to the client
+    response = str(a)
+    udp_socket.sendto(response.encode(), client_address)
+#    timestamp2 = time.time()
+#    time_difference_seconds = timestamp2 - timestamp1
+#    print (time_difference_seconds * 1000 )
+#    print(time.time() - timestamp1)
+    while(time.time() - timestamp1 < 0.075):
+        pass
